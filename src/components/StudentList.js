@@ -1,21 +1,31 @@
 import React, { useEffect, useState } from "react";
+import StudentForm from "./StudentForm";
 
 function StudentList() {
   const [students, setStudents] = useState([]);
-
-  useEffect(() => {
-    fetch("http://localhost:3000/students")
+  const fetchStudents = () => {
+    fetch("http://localhost:3005/students")
       .then((response) => response.json())
       .then((studentsData) => {
         setStudents(studentsData);
       })
       .catch((error) => console.error(error));
-  }, []);
+  };
+
+  useEffect(fetchStudents, []);
 
   const removeStudent = (id) => {
-    // Implement the logic to remove the student with the specified ID
-    // This could involve making another API request to delete the student
-    // and updating the 'students' state accordingly.
+    fetch("http://localhost:3005/students/" + id, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((data) => {
+        console.log("Student deleted:", id);
+        fetchStudents();
+      })
+      .catch((error) => console.error(error));
   };
 
   return (
@@ -43,6 +53,7 @@ function StudentList() {
           ))}
         </tbody>
       </table>
+      <StudentForm afterSave={fetchStudents}></StudentForm>
     </div>
   );
 }
